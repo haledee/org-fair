@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 /// Opened by name from the drawer: Navigator.pushNamed(context, '/about').
 class AboutScreen extends StatelessWidget {
@@ -73,8 +74,41 @@ class AboutScreen extends StatelessWidget {
               'right from this app.',
             ),
           ),
+          const Divider(),
+          const VersionTile(),
         ],
       ),
+    );
+  }
+}
+
+/// Shows which version is running, so testers can say which build they used.
+class VersionTile extends StatefulWidget {
+  const VersionTile({super.key});
+
+  @override
+  State<VersionTile> createState() => _VersionTileState();
+}
+
+class _VersionTileState extends State<VersionTile> {
+  // PackageInfo reads pubspec's version: 1.1.0+2 -> version '1.1.0',
+  // buildNumber '2'. On the web it reads build/web/version.json.
+  late final Future<PackageInfo> _info = PackageInfo.fromPlatform();
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<PackageInfo>(
+      future: _info,
+      builder: (context, snapshot) {
+        final info = snapshot.data;
+        final text = info == null
+            ? 'Version ...'
+            : 'Version ${info.version} (build ${info.buildNumber})';
+        return ListTile(
+          leading: const Icon(Icons.verified_outlined),
+          title: Text(text),
+        );
+      },
     );
   }
 }

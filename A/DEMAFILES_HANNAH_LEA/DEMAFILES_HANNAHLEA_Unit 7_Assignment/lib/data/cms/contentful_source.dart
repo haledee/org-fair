@@ -1,4 +1,4 @@
-import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 
 import '../../models/fair_event.dart';
@@ -82,7 +82,7 @@ class ContentfulEventSource implements EventSource {
             : DateTime.now(),
         venue: fields['venue'] ?? '',
         description: fields['description'] ?? '',
-        cancelled: fields['cacelled'] ?? false,
+        cancelled: fields['cancelled'] ?? false,
       );
     }).toList();
   }

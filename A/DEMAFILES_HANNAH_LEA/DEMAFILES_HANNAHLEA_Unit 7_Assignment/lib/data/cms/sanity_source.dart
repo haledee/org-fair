@@ -44,21 +44,32 @@ class SanityEventSource implements EventSource {
 
   @override
   Future<List<FairEvent>> fetchEvents() async {
-    // TODO 2 (Sanity): Build the request.
-    //   URL:     https://$projectId.apicdn.sanity.io/v2025-02-19/data/query/$dataset
-    //   Query:   query=<the GROQ query above>
-    //            (Uri.https(host, path, {'query': query}) encodes it for you)
-    //   Headers: 'Authorization': 'Bearer $token', only when token is not empty
-    final uri = Uri.https('$projectId.apicdn.sanity.io');
+    final uri = Uri.https(
+      '$projectId.apicdn.sanity.io',
+      '/v2025-02-19/data/query/$dataset',
+      {'query': query},
+    );
+    
     final headers = <String, String>{};
-    // EXPLAIN E3: Open one of the other two CMS files and compare. Which
-    // lines differ, and which are the same? Why is the parsing the part
-    // that changes most from one CMS to another?
+    if (token.isNotEmpty) {
+      headers['Authorization'] = 'Bearer $token';
+    }
+
     final json = await getJson(client, uri, cms: name, headers: headers);
 
-    // TODO 3 (Sanity): Turn the JSON into a List<FairEvent>.
-    //   The list is in json['result']. Use _id as the id.
-    //   description and cancelled can be null: use ?? '' and ?? false.
-    return const [];
+    final results = (json as Map<String, dynamic>?)?['result'] as List<dynamic>? ?? [];
+
+    return results.map((item) {
+      final map = item as Map<String, dynamic>;
+      return FairEvent(
+        id: map['_id'] as String,
+        title: map['title'] as String,
+        orgId: map['orgId'] as String,
+        startsAt: DateTime.parse(map['startsAt'] as String),
+        venue: map['venue'] as String,
+        description: map['description'] ?? '',
+        cancelled: map['cancelled'] ?? false,
+      );
+    }).toList();
   }
 }

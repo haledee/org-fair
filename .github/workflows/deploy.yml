@@ -8,6 +8,9 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: A/DEMAFILES_HANNAH_LEA/DEMAFILES_HANNAHLEA_Unit 7_Assignment
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -28,4 +31,4 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build/web
+          publish_dir: ./A/DEMAFILES_HANNAH_LEA/DEMAFILES_HANNAHLEA_Unit 7_Assignment/build/web

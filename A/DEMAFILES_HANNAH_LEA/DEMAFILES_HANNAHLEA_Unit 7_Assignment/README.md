@@ -1,6 +1,7 @@
-# org_fair
+# CICT Org Fair App
+**Live Demo URL:** https://haledee.github.io/org-fair/
 
-A new Flutter project.
+---
 
 ## Getting Started
 

@@ -1,34 +1,54 @@
-name: Deploy Flutter Web to GitHub Pages
+name: Deploy to GitHub Pages
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: A/DEMAFILES_HANNAH_LEA/DEMAFILES_HANNAHLEA_Unit 7_Assignment
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.x'
-          channel: 'stable'
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Build web
-        run: flutter build web --release --base-href "/org-fair/"
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter test
+      - name: Build the web app
+        run: >
+          flutter build web --release
+          --base-href "/${{ github.event.repository.name }}/"
+          --dart-define=CMS=${{ vars.CMS }}
+          --dart-define=CMS_URL=${{ vars.CMS_URL }}
+          --dart-define=CMS_SPACE=${{ vars.CMS_SPACE }}
+          --dart-define=CMS_PROJECT=${{ vars.CMS_PROJECT }}
+          --dart-define=CMS_DATASET=${{ vars.CMS_DATASET }}
+          --dart-define=CMS_TOKEN=${{ secrets.CMS_TOKEN }}
+      - uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./A/DEMAFILES_HANNAH_LEA/DEMAFILES_HANNAHLEA_Unit 7_Assignment/build/web
+          path: A/DEMAFILES_HANNAH_LEA/DEMAFILES_HANNAHLEA_Unit 7_Assignment/build/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
